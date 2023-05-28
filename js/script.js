@@ -114,11 +114,42 @@ Para solicitar un turno ingrese su DNI:`);
   patient.first_name = prompt("Ingrese su nombre:");
 }
 
-function selectProfessional(professional_list){
-  professional_list.forEach(profesional => {
-    console.log(profesional.id + ' - ' + profesional.person.last_name + ', ' + profesional.person.first_name);
+function showProfessionalList(professional_list) {
+  professional_list.forEach((professional) => {
+    console.log(
+      professional.id +
+        " - " +
+        professional.person.last_name +
+        ", " +
+        professional.person.first_name
+    );
   });
-  return prompt(`Seleccione el profesional ingresando el número a la izquierda del nombre:`);
+}
+
+function findProfessional(professional, id) {
+  return professional.id == id;
+}
+
+function selectProfessional(professional_list) {
+  let professional_id_list = [];
+  let user_option;
+
+  professional_list.forEach((professional) => {
+    professional_id_list.push(professional.id);
+  });
+
+  while (!professional_id_list.includes(user_option)) {
+    user_option = parseInt(
+      prompt(
+        `Seleccione el profesional ingresando el número a la izquierda del nombre:`
+      )
+    );
+    if (!professional_id_list.includes(user_option)) {
+      alert("La opción selecionada no es válida");
+    }
+  }
+
+  return user_option;
 }
 
 let person_prof_1 = new Person(
@@ -146,12 +177,7 @@ let professional_1 = new Professional(
   "Medicina General"
 );
 
-let professional_2 = new Professional(
-  2,
-  "A345",
-  person_prof_2,
-  "Cardiología"
-);
+let professional_2 = new Professional(2, "A345", person_prof_2, "Cardiología");
 
 let planning_1 = new ProfessionalPlanning(
   1,
@@ -169,19 +195,17 @@ let planning_2 = new ProfessionalPlanning(
   60
 );
 
-let professional_list = [professional_1,professional_2];
+let professional_list = [professional_1, professional_2];
 let pattient_list = [];
-
+let selected_professinal_id;
 let person_patient_1 = new Person();
 
-// setPatientData(person_patient_1);
-console.log('Profesional seleccionado: ', selectProfessional(professional_list)); 
+showProfessionalList(professional_list);
 
-console.log(person_patient_1);
-// console.log(person_patient_1.getAge());
+selected_professinal_id = selectProfessional(professional_list);
 
-// console.log(person_prof_1);
-// console.log(professional_1);
-// console.log(planning_1);
-// console.log(planning_1.getPlanningDates());
-// console.log(planning_2.getPlanningDates());
+console.log(
+  professional_list.find((professional) =>
+    findProfessional(professional, selected_professinal_id)
+  )
+);
