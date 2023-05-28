@@ -50,10 +50,10 @@ class ProfessionalPlanning {
     this.date_from = date_from;
     this.date_to = date_to;
     this.max_appointmaint_duration_in_min = max_appointmaint_duration_in_min;
+    this.available_times_list = this.getPlanningDates();
   }
   getMaxAppointmentAmount() {
     let totalMin = (this.date_to - this.date_from) / 60000;
-    console.log("Minutos de atención total: ", totalMin);
     return Math.floor(totalMin / this.max_appointmaint_duration_in_min);
   }
   getPlanningDates() {
@@ -86,16 +86,19 @@ class ProfessionalPlanning {
     }
     return datesArr;
   }
+
+  deleteUsedTime(id) {
+    this.available_times_list.splice(id, 1);
+  }
 }
 
 class Appointment {
-  constructor(id, person, date_from, date_to, professional, order) {
+  constructor(id, person, date_from, date_to, professional_planning) {
     this.id = id;
     this.person = person;
     this.date_from = date_from;
     this.date_to = date_to;
-    this.professional = professional;
-    this.order = order;
+    this.professional_planning = professional_planning;
   }
 }
 
@@ -115,6 +118,7 @@ Para solicitar un turno ingrese su DNI:`);
 }
 
 function showProfessionalList(professional_list) {
+  console.log("=======LISTA DE PROFESIONALES=======");
   professional_list.forEach((professional) => {
     console.log(
       professional.id +
@@ -126,8 +130,19 @@ function showProfessionalList(professional_list) {
   });
 }
 
+function showProfessionalPlanningTimes(available_times_list_list) {
+  console.log("=======HORARIOS DISPONIBLES=======");
+  for (let i = 0; i < available_times_list_list.length; i++) {
+    console.log(`${i + 1} - ${available_times_list_list[i]}`);
+  }
+}
+
 function findProfessional(professional, id) {
   return professional.id == id;
+}
+
+function planningByProfessional(planning, professional_id) {
+  return planning.professional.id == professional_id;
 }
 
 function selectProfessional(professional_list) {
@@ -147,6 +162,34 @@ function selectProfessional(professional_list) {
     if (!professional_id_list.includes(user_option)) {
       alert("La opción selecionada no es válida");
     }
+  }
+
+  return user_option;
+}
+
+function selectAppointmentTime(available_times_list) {
+  if (available_times_list.length == 0) {
+    alert("No hay mas horarios disponibles");
+    return -1;
+  }
+
+  let user_option;
+
+  user_option = parseInt(
+    prompt(
+      `Seleccione el horario ingresando el número a la izquierda del mismo:`
+    )
+  );
+
+  user_option--;
+
+  while (available_times_list[user_option] == undefined) {
+    alert("La opción seleccionada no es válida.");
+    user_option = parseInt(
+      prompt(
+        `Seleccione el horario ingresando el número a la izquierda del mismo:`
+      )
+    );
   }
 
   return user_option;
@@ -188,24 +231,34 @@ let planning_1 = new ProfessionalPlanning(
 );
 
 let planning_2 = new ProfessionalPlanning(
-  1,
-  professional_1,
+  2,
+  professional_2,
   new Date(2023, 6, 1, 15, 0, 0),
   new Date(2023, 6, 1, 19, 0, 0),
   60
 );
 
 let professional_list = [professional_1, professional_2];
+let planning_list = [planning_1, planning_2];
 let pattient_list = [];
-let selected_professinal_id;
+let selected_professional_id;
 let person_patient_1 = new Person();
 
 showProfessionalList(professional_list);
 
-selected_professinal_id = selectProfessional(professional_list);
+selected_professional_id = selectProfessional(professional_list);
 
-console.log(
-  professional_list.find((professional) =>
-    findProfessional(professional, selected_professinal_id)
-  )
+let current_professional_planning = planning_list.find((planning) =>
+  planningByProfessional(planning, selected_professional_id)
 );
+
+showProfessionalPlanningTimes(
+  current_professional_planning.available_times_list
+);
+
+let time_selected = selectAppointmentTime(
+  current_professional_planning.available_times_list
+);
+
+// current_professional_planning.deleteUsedTime(time_selected);
+// showProfessionalPlanningTimes(current_professional_planning.available_times_list);
