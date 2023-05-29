@@ -147,16 +147,28 @@ function planningByProfessional(planning, professional_id) {
 
 function selectProfessional(professional_list) {
   let professional_id_list = [];
+  let professional_template;
   let user_option;
 
   professional_list.forEach((professional) => {
     professional_id_list.push(professional.id);
   });
 
+  professional_list.forEach((professional) => {
+    if (professional_template == undefined) {
+      professional_template = `
+      ${professional.id} - ${professional.person.last_name}, ${professional.person.first_name} (${professional.specialty})`;
+    } else {
+      professional_template += `
+      ${professional.id} - ${professional.person.last_name}, ${professional.person.first_name} (${professional.specialty})`;
+    }
+  });
+
   while (!professional_id_list.includes(user_option)) {
     user_option = parseInt(
       prompt(
-        `Seleccione el profesional ingresando el número a la izquierda del nombre:`
+        `Seleccione el profesional ingresando el número a la izquierda del nombre:
+        ${professional_template}`
       )
     );
     if (!professional_id_list.includes(user_option)) {
@@ -245,6 +257,8 @@ let selected_professional_id;
 let person_patient_1 = new Person();
 
 showProfessionalList(professional_list);
+
+setPatientData(person_patient_1);
 
 selected_professional_id = selectProfessional(professional_list);
 
