@@ -1,3 +1,7 @@
+/* -------------------------------------------------------------------------- */
+/*                                   CLASES                                   */
+/* -------------------------------------------------------------------------- */
+
 class Person {
   constructor(
     id = Date.now(),
@@ -93,18 +97,34 @@ class ProfessionalPlanning {
 }
 
 class Appointment {
-  constructor(id, person, date_from, date_to, professional_planning) {
-    this.id = id;
+  constructor(person, time, professional_planning) {
+    this.id = Date.now();
     this.person = person;
-    this.date_from = date_from;
-    this.date_to = date_to;
+    this.time = time;
     this.professional_planning = professional_planning;
   }
+  showAppointmentData() {
+    console.log("=======DATOS DEL TURNO ASIGNADO=======");
+    console.log(`DNI: ${this.person.doc_number}
+    Apellido: ${this.person.last_name}
+    Nombre: ${this.person.first_name}
+    Fecha de nacimiento: ${this.person.birthday}
+    Edad: ${this.person.getAge()}
+    Hora del turno: ${this.time}`);
+  }
 }
+/* -------------------------------------------------------------------------- */
+/*                                 FIN CLASES                                 */
+/* -------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
+/*                                  FUNCIONES                                 */
+/* -------------------------------------------------------------------------- */
 
 function setPatientData(patient) {
-  patient.doc_number = prompt(`Bienvenido
-Para solicitar un turno ingrese su DNI:`);
+  patient.doc_number = prompt(
+    "Bienvenido.\nPara solicitar un turno ingrese su DNI:"
+  );
 
   patient.sex = prompt("Ingrese su género (F, M, X):");
 
@@ -115,6 +135,8 @@ Para solicitar un turno ingrese su DNI:`);
   patient.last_name = prompt("Ingrese su apellio:");
 
   patient.first_name = prompt("Ingrese su nombre:");
+
+  return patient;
 }
 
 function showProfessionalList(professional_list) {
@@ -207,6 +229,17 @@ function selectAppointmentTime(available_times_list) {
   return user_option;
 }
 
+function createNewAppointment(person, time, professional_planning, time_id) {
+  let appointment = new Appointment(person, time, professional_planning);
+  professional_planning.deleteUsedTime(time_id);
+  return appointment;
+}
+/* -------------------------------------------------------------------------- */
+/*                                FIN FUNCIONES                               */
+/* -------------------------------------------------------------------------- */
+
+/* -------------------- SE CREAN OBJETOS PARA LAS PRUEBAS ------------------- */
+
 let person_prof_1 = new Person(
   undefined,
   "35887554",
@@ -250,15 +283,20 @@ let planning_2 = new ProfessionalPlanning(
   60
 );
 
+/* -------------------------------------------------------------------------- */
+/*                        COMIENZA EJECUCIÓN PRINCIPAL                        */
+/* -------------------------------------------------------------------------- */
+
+/*UTILIZO VARIABLES GLOBALES PORQUE NO HE VISTO QUE SE USE UNA FUNCION MAIN O CLASE MAIN*/
 let professional_list = [professional_1, professional_2];
 let planning_list = [planning_1, planning_2];
-let pattient_list = [];
+let appointment_list = [];
 let selected_professional_id;
-let person_patient_1 = new Person();
+let person_patient = new Person();
 
 showProfessionalList(professional_list);
 
-setPatientData(person_patient_1);
+setPatientData(person_patient);
 
 selected_professional_id = selectProfessional(professional_list);
 
@@ -270,9 +308,19 @@ showProfessionalPlanningTimes(
   current_professional_planning.available_times_list
 );
 
-let time_selected = selectAppointmentTime(
+let time_selected_index = selectAppointmentTime(
   current_professional_planning.available_times_list
 );
+
+let time_selected =
+  current_professional_planning.available_times_list[time_selected_index];
+
+createNewAppointment(
+  person_patient,
+  time_selected,
+  current_professional_planning,
+  time_selected_index
+).showAppointmentData();
 
 // current_professional_planning.deleteUsedTime(time_selected);
 // showProfessionalPlanningTimes(current_professional_planning.available_times_list);
