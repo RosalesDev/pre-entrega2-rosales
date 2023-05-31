@@ -5,14 +5,14 @@
 class Person {
   constructor(
     doc_number,
-    sex,
+    gender,
     last_name,
     first_name,
     birthday
   ) {
     this.id = Date.now();
     this.doc_number = doc_number;
-    this.sex = sex;
+    this.gender = gender;
     this.last_name = last_name;
     this.first_name = first_name;
     this.birthday = birthday;
@@ -104,11 +104,13 @@ class Appointment {
   }
   showAppointmentData() {
     console.log("=======DATOS DEL TURNO ASIGNADO=======");
-    console.log(`DNI: ${this.person.doc_number}
+    console.log(`
+    DNI: ${this.person.doc_number}
     Apellido: ${this.person.last_name}
     Nombre: ${this.person.first_name}
     Fecha de nacimiento: ${this.person.birthday}
     Edad: ${this.person.getAge()}
+    Género: ${this.person.gender}
     Hora del turno: ${this.time}`);
   }
 }
@@ -140,28 +142,28 @@ function setPatientData(patient) {
 
   /* ------------------------------ SOLICITO DNI ------------------------------ */
   do{
-    if(patient.doc_number != undefined) {
+    if(patient.doc_number!= undefined && (isNaN(patient.doc_number) || patient.doc_number.length < 8)) {
       alert('El valor ingresado no es válido.');
     }
     patient.doc_number = prompt(
-      "Bienvenido.\nPara solicitar un turno ingrese su DNI:"
+      "Ingrese su DNI:"
     );
   }
   while(isNaN(patient.doc_number) || patient.doc_number.length < 8)
 
 /* --------------------------- SOLICITO EL GÉNERO --------------------------- */
   do{
-    if(patient.sex != undefined){
+    if(patient.gender != undefined && !gender_options.includes(patient.gender)){
       alert('El valor ingresado no es válido.');
     }
-    patient.sex = prompt("Ingrese su género (F, M, X):");
+    patient.gender = prompt("Ingrese su género (F, M, X):");
   }
-  while(!gender_options.includes(patient.sex));
+  while(!gender_options.includes(patient.gender));
 
 /* ---------------------- SOLICITO FECHA DE NACIMIENTO ---------------------- */
 
   do{
-    if(patient.birthday != undefined) {
+    if(patient.birthday != undefined && !isValidBirthday(patient.birthday)) {
       alert('El valor ingresado no es válido.');
     }
     patient.birthday =
@@ -170,16 +172,18 @@ function setPatientData(patient) {
   }
   while(!isValidBirthday(patient.birthday));
 
+/* -------------------------- SOLICITO EL APELLIDO -------------------------- */
   do{
-    if(patient.last_name != undefined) {
+    if(patient.last_name != undefined && patient.last_name.length < 3) {
       alert('El valor ingresado no es válido.');
     }
     patient.last_name = prompt("Ingrese su apellio:");
   }
   while(patient.last_name.length < 3)
 
+/* --------------------------- SOLICITO EL NOMBRE --------------------------- */
   do{
-    if(patient.first_name != undefined) {
+    if(patient.first_name != undefined && patient.first_name.length < 3) {
       alert('El valor ingresado no es válido.');
     }
     patient.first_name = prompt("Ingrese su nombre:");
@@ -193,13 +197,7 @@ function setPatientData(patient) {
 function showProfessionalList(professional_list) {
   console.log("=======LISTA DE PROFESIONALES=======");
   professional_list.forEach((professional) => {
-    console.log(
-      professional.id +
-        " - " +
-        professional.person.last_name +
-        ", " +
-        professional.person.first_name
-    );
+    console.log(`${professional.id} - ${professional.person.last_name}, ${professional.person.first_name} (${professional.specialty})`);
   });
 }
 
@@ -342,34 +340,45 @@ let planning_list = [planning_1, planning_2];
 let appointment_list = [];
 let selected_professional_id;
 let person_patient = new Person();
+let selected_option;
 
 showProfessionalList(professional_list);
 
-setPatientData(person_patient);
+alert('Hola.\n'+
+'Por alguna razón no se muestran los console.log en la primera ejecución.\n'+
+'Por favor, abrir la consola y seleccionar salir (2) la primera vez.');
 
-selected_professional_id = selectProfessional(professional_list);
-
-let current_professional_planning = planning_list.find((planning) =>
-  planningByProfessional(planning, selected_professional_id)
-);
-
-showProfessionalPlanningTimes(
-  current_professional_planning.available_times_list
-);
-
-let time_selected_index = selectAppointmentTime(
-  current_professional_planning.available_times_list
-);
-
-let time_selected =
-  current_professional_planning.available_times_list[time_selected_index];
-
-createNewAppointment(
-  person_patient,
-  time_selected,
-  current_professional_planning,
-  time_selected_index
-).showAppointmentData();
-
-// current_professional_planning.deleteUsedTime(time_selected);
-// showProfessionalPlanningTimes(current_professional_planning.available_times_list);
+while(selected_option != 1 && selected_option != 2) {
+  selected_option = parseInt(prompt('Ingrese 1 para solicitar un turno, 2 para salir.'));
+  if(selected_option == 1) {
+    setPatientData(person_patient);
+    
+    selected_professional_id = selectProfessional(professional_list);
+    
+    let current_professional_planning = planning_list.find((planning) =>
+      planningByProfessional(planning, selected_professional_id)
+    );
+    
+    showProfessionalPlanningTimes(
+      current_professional_planning.available_times_list
+    );
+    
+    let time_selected_index = selectAppointmentTime(
+      current_professional_planning.available_times_list
+    );
+    
+    let time_selected =
+      current_professional_planning.available_times_list[time_selected_index];
+    
+    createNewAppointment(
+      person_patient,
+      time_selected,
+      current_professional_planning,
+      time_selected_index
+    ).showAppointmentData();
+    selected_option = undefined;
+  }
+  else if(selected_option == 2) {
+    alert('Adios!');
+  }
+}
