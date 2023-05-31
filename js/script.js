@@ -4,14 +4,13 @@
 
 class Person {
   constructor(
-    id = Date.now(),
     doc_number,
     sex,
     last_name,
     first_name,
     birthday
   ) {
-    this.id = id;
+    this.id = Date.now();
     this.doc_number = doc_number;
     this.sex = sex;
     this.last_name = last_name;
@@ -120,21 +119,73 @@ class Appointment {
 /* -------------------------------------------------------------------------- */
 /*                                  FUNCIONES                                 */
 /* -------------------------------------------------------------------------- */
+function isValidBirthday(birthday){
+  const current_date = new Date();
+  const day = birthday.split('/')[0];
+  const month = birthday.split('/')[1];
+  const year = birthday.split('/')[2];
+
+  const slash_counter = birthday.split('').filter((element) => element == '/').length;
+  const is_valid_length = birthday.length == 10;
+  const all_numbers = birthday.split('/').find((element) => isNaN(element)) == undefined;
+  const is_valid_day = day <= 31;
+  const is_valid_month = month <= 12;
+  const is_valid_year = year > 1920 && birthday.split('/')[2] <= current_date.getFullYear();
+
+  return (is_valid_length && slash_counter == 2 && all_numbers && is_valid_day && is_valid_month && is_valid_year);
+}
 
 function setPatientData(patient) {
-  patient.doc_number = prompt(
-    "Bienvenido.\nPara solicitar un turno ingrese su DNI:"
-  );
+  const gender_options = ['M','F','X'];
 
-  patient.sex = prompt("Ingrese su género (F, M, X):");
+  /* ------------------------------ SOLICITO DNI ------------------------------ */
+  do{
+    if(patient.doc_number != undefined) {
+      alert('El valor ingresado no es válido.');
+    }
+    patient.doc_number = prompt(
+      "Bienvenido.\nPara solicitar un turno ingrese su DNI:"
+    );
+  }
+  while(isNaN(patient.doc_number) || patient.doc_number.length < 8)
 
-  patient.birthday =
-    prompt(`Ingrese su fecha de nacimiento con el siguiente formato:
-    dd/mm/aaaa`);
+/* --------------------------- SOLICITO EL GÉNERO --------------------------- */
+  do{
+    if(patient.sex != undefined){
+      alert('El valor ingresado no es válido.');
+    }
+    patient.sex = prompt("Ingrese su género (F, M, X):");
+  }
+  while(!gender_options.includes(patient.sex));
 
-  patient.last_name = prompt("Ingrese su apellio:");
+/* ---------------------- SOLICITO FECHA DE NACIMIENTO ---------------------- */
 
-  patient.first_name = prompt("Ingrese su nombre:");
+  do{
+    if(patient.birthday != undefined) {
+      alert('El valor ingresado no es válido.');
+    }
+    patient.birthday =
+      prompt(`Ingrese su fecha de nacimiento con el siguiente formato:
+      dd/mm/aaaa`);
+  }
+  while(!isValidBirthday(patient.birthday));
+
+  do{
+    if(patient.last_name != undefined) {
+      alert('El valor ingresado no es válido.');
+    }
+    patient.last_name = prompt("Ingrese su apellio:");
+  }
+  while(patient.last_name.length < 3)
+
+  do{
+    if(patient.first_name != undefined) {
+      alert('El valor ingresado no es válido.');
+    }
+    patient.first_name = prompt("Ingrese su nombre:");
+  }
+  while(patient.first_name.length < 3)
+
 
   return patient;
 }
@@ -240,8 +291,7 @@ function createNewAppointment(person, time, professional_planning, time_id) {
 
 /* -------------------- SE CREAN OBJETOS PARA LAS PRUEBAS ------------------- */
 
-let person_prof_1 = new Person(
-  undefined,
+let professional_person_1 = new Person(
   "35887554",
   "M",
   "Baldacci",
@@ -249,8 +299,7 @@ let person_prof_1 = new Person(
   "21/12/1978"
 );
 
-let person_prof_2 = new Person(
-  undefined,
+let professional_person_2 = new Person(
   "36051238",
   "M",
   "Gray",
@@ -261,11 +310,11 @@ let person_prof_2 = new Person(
 let professional_1 = new Professional(
   1,
   "A123",
-  person_prof_1,
+  professional_person_1,
   "Medicina General"
 );
 
-let professional_2 = new Professional(2, "A345", person_prof_2, "Cardiología");
+let professional_2 = new Professional(2, "A345", professional_person_2, "Cardiología");
 
 let planning_1 = new ProfessionalPlanning(
   1,
